@@ -1,36 +1,123 @@
-# Trabalho Prático: Implementando Padrões de Teste (Test Patterns)
+# 🧪 Test Patterns - E-commerce Checkout Service
 
-Este repositório contem os elementos necessários para execução do projeto de Test Patterns
+[![Tests](https://img.shields.io/badge/tests-passing-brightgreen.svg)](./__tests__/)
+[![Jest](https://img.shields.io/badge/jest-29.7.0-red.svg)](https://jestjs.io/)
 
-## Sua Tarefa
+## ✅ Trabalho Completo - Padrões de Teste Implementados
 
-Seu objetivo é criar a suíte de testes para o `src/services/CheckoutService.js`.
+Este repositório contém a **implementação completa** de Padrões de Teste (Test Patterns) para um serviço de checkout de e-commerce
 
-1.  **Crie seu arquivo de teste:** `__tests__/CheckoutService.test.js`.
-2.  **Crie os Builders:** Crie a pasta `__tests__/builders/` e implemente:
-    - `UserMother.js` (Object Mother)
-    - `CarrinhoBuilder.js` (Data Builder)
-3.  **Implemente os Testes:** No seu arquivo de teste, cubra os principais cenários do `CheckoutService`, aplicando os padrões de Test Doubles corretos.
+## 🎯 Padrões Implementados
 
-### Cenários Principais a Cobrir:
+### ✅ Object Mother - `UserMother.js`
 
-- **Verificação de Estado (Stub):**
-  - Deve retornar `null` se o `GatewayPagamento` recusar a cobrança.
-  - Deve retornar o pedido salvo com o `totalFinal` correto para um cliente padrão.
-- **Verificação de Comportamento (Mock):**
-  - Deve aplicar 10% de desconto ao chamar o `GatewayPagamento` se o usuário for "PREMIUM".
-  - Deve chamar o `EmailService.enviarEmail` com os dados corretos após um pagamento bem-sucedido.
-  - Não deve chamar o `EmailService` nem o `PedidoRepository` se o pagamento falhar.
+```javascript
+const usuarioPadrao = UserMother.umUsuarioPadrao();
+const usuarioPremium = UserMother.umUsuarioPremium();
+```
 
-## 5. Como Começar
+### ✅ Data Builder - `CarrinhoBuilder.js`
 
-1.  **Fork e Clone:** Faça um fork deste repositório e clone-o para sua máquina.
-2.  **Instale as Dependências:**
-    ```bash
-    npm install
-    ```
-3.  **Execute os Testes (Modo Watch):**
-    ```bash
-    npm test -- --watch
-    ```
-    (Comece a criar seus arquivos em `__tests__/` e o Jest irá executá-los automaticamente.)
+```javascript
+const carrinho = new CarrinhoBuilder()
+  .comUser(usuarioPremium)
+  .comValorTotal(200)
+  .build();
+```
+
+### ✅ Stubs (Verificação de Estado)
+
+```javascript
+const gatewayStub = {
+  cobrar: jest.fn().mockResolvedValue({ success: true }),
+};
+```
+
+### ✅ Mocks (Verificação de Comportamento)
+
+```javascript
+expect(emailMock.enviarEmail).toHaveBeenCalledWith(
+  "premium@email.com",
+  "Seu Pedido foi Aprovado!",
+  expect.stringContaining("180")
+);
+```
+
+## 📊 Cenários de Teste Implementados
+
+| #   | Cenário                            | Status |
+| --- | ---------------------------------- | ------ |
+| 1   | Pagamento falha - retorna null     | ✅     |
+| 2   | Cliente padrão - sem desconto      | ✅     |
+| 3   | Cliente premium - com desconto 10% | ✅     |
+| 4   | Carrinho vazio - valor zero        | ✅     |
+| 5   | Falha no e-mail - resiliência      | ✅     |
+
+## 🚀 Como Executar
+
+### Instalação
+
+```bash
+npm install
+```
+
+### Executar Testes
+
+```bash
+# Todos os testes
+npm test
+
+# Com detalhes
+npm test -- --verbose
+
+# Com cobertura
+npm run coverage
+
+# Modo watch
+npm test -- --watch
+```
+
+## ✅ Resultados
+
+```
+PASS  __tests__/CheckoutService.test.js
+  CheckoutService
+    quando o pagamento falha
+      ✓ deve retornar null quando o gateway retornar success=false
+    quando um cliente PADRAO finaliza a compra com sucesso
+      ✓ deve processar o pedido sem aplicar desconto
+    quando um cliente PREMIUM finaliza a compra
+      ✓ deve aplicar 10% de desconto e notificar por e-mail
+    quando o carrinho está vazio
+      ✓ deve processar pedido com valor zero
+    quando o e-mail falha mas o pagamento foi processado
+      ✓ deve retornar o pedido mesmo com falha no envio do e-mail
+
+Test Suites: 1 passed, 1 total
+Tests:       5 passed, 5 total
+```
+
+## 📖 Documentação
+
+📄 **[RELATORIO.md](./RELATORIO.md)** - Relatório técnico completo com:
+
+- Justificativa: Builder vs. Object Mother
+- Análise: Stubs vs. Mocks
+- Exemplos antes/depois
+- State vs. Behavior Verification
+
+## 🏗️ Estrutura
+
+```
+__tests__/
+├── builders/
+│   ├── UserMother.js          ✅ Object Mother
+│   └── CarrinhoBuilder.js     ✅ Data Builder
+└── CheckoutService.test.js    ✅ 5 testes
+```
+
+## 📚 Referências
+
+1. [Martin Fowler - Mocks Aren't Stubs](https://martinfowler.com/articles/mocksArentStubs.html)
+2. [xUnit Test Patterns](http://xunitpatterns.com/)
+3. [Jest Documentation](https://jestjs.io/docs/mock-functions)
